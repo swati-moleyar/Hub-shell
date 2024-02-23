@@ -1,0 +1,22 @@
+@import "./icons.scss";
+@import "~font-awesome/scss/font-awesome";
+@import "~@iqmetrix/style-tokens/dist/scss/tokens";
+
+body {
+  margin: 0;
+}
+
+code {
+  font-family: $font-family-base-sans;
+}
+
+html {
+  font-size: $font-size-base-body;
+  line-height: 1.5;
+  font-family: $font-family-base-sans;
+}
+
+#root {
+  height: 100%;
+  overflow: hidden;
+}

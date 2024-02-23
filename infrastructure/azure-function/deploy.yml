@@ -1,0 +1,20 @@
+parameters:
+  subscription: ''
+  appName: ''
+
+jobs:
+  - job:
+    steps:
+    - task: ArchiveFiles@2
+      displayName: 'Package'
+      inputs:
+        rootFolderOrFile: 'infrastructure/azure-function/proxies.json'
+        includeRootFolder: false
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    - task: AzureFunctionApp@1
+      displayName: 'Deploy'
+      inputs:
+        azureSubscription: ${{ parameters.subscription }}
+        appType: functionApp
+        appName: ${{ parameters.appName }}
+        package: '$(Build.ArtifactStagingDirectory)/**/*.zip'

@@ -1,0 +1,99 @@
+trigger:
+  branches:
+    include:
+      - main
+  tags:
+    include:
+      - "*"
+  paths:
+    include:
+      - web/*
+
+resources:
+  repositories:
+    - repository: frontend-packages
+      name: iqmetrix/frontend-packages
+      type: github
+      endpoint: GitHub-iQmetrixService
+
+variables:
+  - group: AzureKeyVault
+  - name: buildPath
+    value: "$(Pipeline.Workspace)/drop/"
+
+stages:
+  - stage: Build
+    jobs:
+      - template: packages/utilities/azure-devops/build-pipeline.yml@frontend-packages
+        parameters:
+          workingDirectory: "web"
+
+  - stage: Dev
+    dependsOn: Build
+    condition: and(
+      succeeded(),
+      or(
+      contains(variables['build.sourceBranch'], 'refs/heads/main'),
+      contains(variables['build.sourceBranch'], 'refs/tags')
+      )
+      )
+    jobs:
+      - template: deploy.yml
+        parameters:
+          environment: hubshelldev
+          config: dev
+          subscription: SharedMicroservices-Development
+          storage: hubshelldev
+          buildPath: "${{ variables.buildPath }}"
+          cdnId: /subscriptions/9419832b-3bbb-402e-987f-6486e1ec4a39/resourcegroups/hub-dev/providers/Microsoft.Cdn/profiles/hubshell-cdn-dev/endpoints/hubshell-cdn-dev
+
+  - stage: Int
+    dependsOn: Dev
+    condition: succeeded()
+    jobs:
+      - template: deploy.yml
+        parameters:
+          environment: hubshellint
+          config: int
+          subscription: SharedMicroservices-Development
+          storage: hubshellint
+          buildPath: "${{ variables.buildPath }}"
+          cdnId: /subscriptions/9419832b-3bbb-402e-987f-6486e1ec4a39/resourcegroups/hub-int/providers/Microsoft.Cdn/profiles/hubshell-cdn-int/endpoints/hubshell-cdn-int
+
+  - stage: Publish_Npm_Package
+    displayName: Publish npm Package
+    dependsOn: Int
+    condition: succeeded()
+    jobs:
+      - job: Publish
+        steps:
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              artifactName: "drop"
+          - task: CopyFiles@2 # Copy contents of /build to /npm/dist
+            inputs:
+              SourceFolder: "$(System.ArtifactsDirectory)/drop"
+              Contents: |
+                **
+                !**/temp/**
+              TargetFolder: "$(Agent.BuildDirectory)/npm/dist"
+          - task: CopyFiles@2 # Copy package.json to /npm
+            inputs:
+              SourceFolder: "$(System.ArtifactsDirectory)/drop/temp"
+              Contents: "package.json"
+              TargetFolder: "$(Agent.BuildDirectory)/npm"
+          - task: Npm@1
+            inputs:
+              command: "publish"
+              workingDir: "$(Agent.BuildDirectory)/npm"
+              publishRegistry: "useFeed"
+              publishFeed: "47a1753d-0296-432f-95f2-2f9e908f3e8f"
+
+  - stage: Create_Sentry_Release_Int
+    displayName: Create Sentry Release (Int)
+    dependsOn: Int
+    condition: succeeded()
+    jobs:
+      - template: packages/utilities/azure-devops/sentry.yml@frontend-packages
+        parameters:
+          project: "hub-shell"

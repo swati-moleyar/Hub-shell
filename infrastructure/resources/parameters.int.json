@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "int"
+    },
+    "hubshellStaticHost": {
+      "value": "hubshellint.z22.web.core.windows.net"
+    },
+    "hubLegacyAppServiceHost": {
+      "value": "hub-int-westus1.azurewebsites.net"
+    },
+    "cdnCustomDomain": {
+      "value": "hubdev.iqmetrix.net"
+    },
+    "keyVaultContributorsObjectId": {
+      "value": "e4c9ce23-3be8-481a-bc0b-7be740661648"
+    },
+    "msiObjectId": {
+      "value": "a442fc67-d919-4895-95c7-57b46df5b30b"
+    }
+  }
+}

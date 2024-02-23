@@ -1,0 +1,10 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "reporter": "mocha-junit-reporter",
+  "reporterOptions": {
+    "mochaFile": "cypress/results/[hash].junit.xml",
+    "toConsole": true,
+    "attachments": true
+  },
+  "chromeWebSecurity": true
+}

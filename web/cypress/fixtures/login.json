@@ -1,0 +1,12 @@
+{
+  "int": {
+    "loginUrl": "https://accountsint.iqmetrix.net/Account/Login?returnUrl=https%3a%2f%2faccountsint.iqmetrix.net%2fv1%2foauth2%2fauth%3fresponse_type%3dcode%26client_id%3diqmetrixhub%26redirect_uri%3dhttp%3a%2f%2flocalhost%3a3000",
+    "username": "chris.ventura@materiatest",
+    "password": "abc123"
+  },
+  "prod": {
+    "loginUrl": "https://accounts.iqmetrix.net/Account/Login?returnUrl=https%3a%2f%2faccounts.iqmetrix.net%2fv1%2foauth2%2fauth%3fresponse_type%3dcode%26client_id%3diqmetrixhub%26redirect_uri%3dhttps%3a%2f%2fhubdev.iqmetrix.net",
+    "username": "chris.ventura@csttraining",
+    "password": "Password1"
+  }
+}

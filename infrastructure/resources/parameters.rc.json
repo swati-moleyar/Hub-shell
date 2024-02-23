@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "value": "rc"
+    },
+    "hubshellStaticHost": {
+      "value": "FILL THIS IN AFTER WE MANUALLY TURN ON STATIC STORAGE"
+    },
+    "hubLegacyAppServiceHost": {
+      "value": "hub-rc-westus1.azurewebsites.net"
+    },
+    "keyVaultContributorsObjectId": {
+      "value": "e4c9ce23-3be8-481a-bc0b-7be740661648"
+    },
+    "msiObjectId": {
+      "value": "2c119505-e34a-4cf9-a5e6-9c4b328873a6"
+    }
+  }
+}

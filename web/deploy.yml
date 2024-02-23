@@ -1,0 +1,79 @@
+parameters:
+  environment: ""
+  config: ""
+  subscription: ""
+  buildPath: ""
+  storage: ""
+  cdnId: ""
+
+jobs:
+  - deployment: ${{ parameters.environment }}
+    environment: ${{ parameters.environment }}
+    pool:
+      vmImage: windows-latest # required for the file copy task
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            # confirm parameters provided
+            - bash: |
+                if [ -z "$ENVIRONMENT" ]; then
+                  echo "##vso[task.logissue type=error;]Missing template parameter \"environment\""
+                  export FAILED=true
+                fi
+                if [ -z "$CONFIG" ]; then
+                  echo "##vso[task.logissue type=error;]Missing template parameter \"config\""
+                  export FAILED=true
+                fi
+                if [ -z "$SUBSCRIPTION" ]; then
+                  echo "##vso[task.logissue type=error;]Missing template parameter \"subscription\""
+                  export FAILED=true
+                fi
+                if [ -z "$STORAGE" ]; then
+                  echo "##vso[task.logissue type=error;]Missing template parameter \"storage\""
+                  export FAILED=true
+                fi
+                if [ -z "$CDN_ID" ]; then
+                  echo "##vso[task.logissue type=error;]Missing template parameter \"cdnId\""
+                  export FAILED=true
+                fi
+                if [ -z "$BUILD_PATH" ]; then
+                  echo "##vso[task.logissue type=error;]Missing template parameter \"buildPath\""
+                  export FAILED=true
+                fi
+                if [ $FAILED ]; then
+                  echo "##vso[task.complete result=Failed;]"
+                fi
+              env:
+                ENVIRONMENT: ${{ parameters.environment }}
+                CONFIG: ${{ parameters.config }}
+                SUBSCRIPTION: ${{ parameters.subscription }}
+                STORAGE: ${{ parameters.storage }}
+                BUILD_PATH: ${{ parameters.buildPath }}
+                CDN_ID: $${{ parameters.cdnId }}
+
+            - bash: |
+                rm config.js && cp config.$CONFIG.js config.js
+              env:
+                CONFIG: ${{ parameters.config }}
+              displayName: Replace environment config
+              workingDirectory: $(Pipeline.Workspace)/drop
+
+            # Azure file copy
+            # Copy files to Azure Blob Storage or virtual machines
+            - task: AzureFileCopy@3
+              displayName: "Upload application"
+              inputs:
+                sourcePath: ${{ parameters.buildPath }}
+                azureSubscription: ${{ parameters.subscription }}
+                destination: azureBlob
+                storage: ${{ parameters.storage }}
+                containerName: $web
+                cleanTargetBeforeCopy: false
+
+            - task: AzureCLI@1
+              displayName: "Purge CDN"
+              inputs:
+                azureSubscription: ${{ parameters.subscription }}
+                scriptLocation: inlineScript
+                inlineScript: call az cdn endpoint purge --ids ${{ parameters.cdnId }} --content-paths "/*"

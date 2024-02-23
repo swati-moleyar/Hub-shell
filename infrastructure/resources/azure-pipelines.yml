@@ -1,0 +1,25 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - infrastructure/resources/*
+
+stages:
+  - stage: Int  
+    jobs:
+    - job:
+      steps:
+      - task: AzureResourceManagerTemplateDeployment@3
+        inputs:
+          deploymentScope: 'Resource Group'
+          azureResourceManagerConnection: 'SharedMicroservices-Development'
+          subscriptionId: '9419832b-3bbb-402e-987f-6486e1ec4a39'
+          action: 'Create Or Update Resource Group'
+          resourceGroupName: 'hub-int'
+          location: 'West US'
+          templateLocation: 'Linked artifact'
+          csmFile: 'infrastructure/resources/template.json'
+          csmParametersFile: 'infrastructure/resources/parameters.int.json'
+          deploymentMode: 'Incremental'

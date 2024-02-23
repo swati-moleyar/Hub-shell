@@ -1,0 +1,154 @@
+
+@font-face {
+  font-family: 'iq-iconsroman';
+  font-weight: normal;
+  font-style: normal;
+  src: url('../fonts/iqicons/iq-icons-roman-webfont.eot?#iefix') format('embedded-opentype'),
+      url('../fonts/iqicons/iq-icons-roman-webfont.woff') format('woff'),
+      url('../fonts/iqicons/iq-icons-roman-webfont.ttf') format('truetype'),
+      url('../fonts/iqicons/iq-icons-roman-webfont.svg') format('svg');
+}
+
+i[class^='icon-']::before,
+i[class*=' icon-']::before {
+  display: inline-block;
+  text-decoration: none;
+  font-family: 'iq-iconsroman';
+  font-size: 1.1rem;
+  font-weight: normal;
+  font-style: normal;
+}
+
+.icon-catalog::before { content: '\f00a'; }
+.icon-company-locations::before { content: '\f000'; }
+.icon-company-division::before { content: '\f001'; }
+.icon-department::before { content: '\f002'; }
+.icon-carriers::before { content: '\f003'; }
+.icon-users::before { content: '\f004'; }
+.icon-companies::before { content: '\f005'; }
+.icon-entities::before { content: '\f006'; }
+.icon-suppliers::before { content: '\f007'; }
+.icon-manufacturers::before { content: '\f008'; }
+.icon-curation-tool::before { content: '\f009'; }
+.icon-product-manager::before { content: '\f00a'; }
+.icon-partners::before { content: '\f00b'; }
+.icon-classification-manager::before { content: '\f00c'; }
+.icon-catalog-manager::before { content: '\f00d'; }
+.icon-unsync::before { content: '\f00e'; }
+.icon-sync::before { content: '\f010'; }
+.icon-compatibility::before { content: '\f011'; }
+.icon-channel::before { content: '\f012'; }
+.icon-district::before { content: '\f013'; }
+.icon-region::before { content: '\f014'; }
+.icon-store-front::before { content: '\f015'; }
+.icon-pamphlet::before { content: '\f016'; }
+.icon-temp::before { content: '\f017'; }
+.icon-securityroles::before { content: '\f018'; }
+.icon-screen-size::before { content: '\f019'; }
+.icon-screenconfigurations::before { content: '\f01a'; }
+.icon-display-manager::before { content: '\f01b'; }
+.icon-branding::before { content: '\f01c'; }
+.icon-lifestyle-features::before { content: '\f01d'; }
+.icon-product-subscriptions::before { content: '\f01e'; }
+.icon-handshake::before { content: '\f020'; }
+.icon-iq-logo::before { content: '\f021'; }
+.icon-drag::before { content: '\f022'; }
+.icon-adplay::before { content: '\f023'; }
+.icon-cashdrawer::before { content: '\f024'; }
+.icon-queuing::before { content: '\f025'; }
+.icon-safe::before { content: '\f026'; }
+.icon-shelf::before { content: '\f027'; }
+.icon-dropship::before { content: '\f028'; }
+
+.icon-dev-console { white-space: nowrap; }
+.icon-dev-console::before { content: '{  }'; }
+
+.icon-circle::before { content: '\f029'; }
+.icon-circle-ds::before { content: '\f02a'; }
+.icon-circle-lock::before { content: '\f02b'; }
+.icon-circle-lock-ds::before { content: '\f02c'; }
+.icon-circle-arrow-right::before { content: '\f02d'; }
+.icon-circle-arrow-right-ds::before { content: '\f02e'; }
+.icon-circle-arrow-right-lock::before { content: '\f030'; }
+.icon-circle-arrow-right-lock-ds::before { content: '\f031'; }
+.icon-circle-arrow-left::before { content: '\f032'; }
+.icon-circle-arrow-left-ds::before { content: '\f033'; }
+
+.icon-circle-arrow-left-lock::before { content: '\f034'; }
+.icon-circle-arrow-left-lock-ds::before { content: '\f035'; }
+.icon-circle-arrows::before { content: '\f036'; }
+.icon-circle-arrows-ds::before { content: '\f037'; }
+.icon-circle-arrows-lock::before { content: '\f038'; }
+.icon-circle-arrows-lock-ds::before { content: '\f039'; }
+.icon-circle-play::before { content: '\f03a'; }
+.icon-circle-play-ds::before { content: '\f03b'; }
+.icon-circle-play-lock::before { content: '\f03c'; }
+.icon-circle-play-lock-ds::before { content: '\f03d'; }
+
+.icon-circle-play-brackets::before { content: '\f03e'; }
+.icon-circle-play-brackets-ds::before { content: '\f040'; }
+.icon-circle-play-brackets-lock::before { content: '\f041'; }
+.icon-circle-play-brackets-lock-ds::before { content: '\f042'; }
+.icon-circle-cross::before { content: '\f043'; }
+.icon-circle-cross-ds::before { content: '\f044'; }
+.icon-circle-cross-lock::before { content: '\f045'; }
+.icon-circle-cross-lock-ds::before { content: '\f046'; }
+.icon-circle-brackets::before { content: '\f047'; }
+.icon-circle-brackets-ds::before { content: '\f048'; }
+
+.icon-circle-brackets-lock::before { content: '\f049'; }
+.icon-circle-brackets-lock-ds::before { content: '\f04a'; }
+.icon-lightning::before { content: '\f04b'; }
+.icon-lightning-ds::before { content: '\f04c'; }
+.icon-lightning-lock::before { content: '\f04d'; }
+.icon-lightning-lock-ds::before { content: '\f04e'; }
+.icon-square::before { content: '\f050'; }
+.icon-square-ds::before { content: '\f051'; }
+.icon-square-lock::before { content: '\f052'; }
+.icon-square-lock-ds::before { content: '\f053'; }
+
+.icon-square-play::before { content: '\f054'; }
+.icon-square-play-ds::before { content: '\f055'; }
+.icon-square-play-lock::before { content: '\f056'; }
+.icon-square-play-lock-ds::before { content: '\f057'; }
+.icon-circle-o::before { content: '\f058'; }
+.icon-circle-o-ds::before { content: '\f059'; }
+.icon-circle-o-arrow-right::before { content: '\f05a'; }
+.icon-circle-o-arrow-right-ds::before { content: '\f05b'; }
+.icon-circle-o-arrow-left::before { content: '\f05c'; }
+.icon-circle-o-arrow-left-ds::before { content: '\f05d'; }
+
+.icon-circle-o-arrows::before { content: '\f05e'; }
+.icon-circle-o-arrows-ds::before { content: '\f060'; }
+.icon-circle-o-play::before { content: '\f061'; }
+.icon-circle-o-play-ds::before { content: '\f062'; }
+.icon-circle-o-play-brackets::before { content: '\f063'; }
+.icon-circle-o-play-brackets-ds::before { content: '\f064'; }
+.icon-circle-o-cross::before { content: '\f065'; }
+.icon-circle-o-cross-ds::before { content: '\f066'; }
+.icon-circle-o-brackets::before { content: '\f067'; }
+.icon-circle-o-brackets-ds::before { content: '\f068'; }
+
+.icon-square-o::before { content: '\f069'; }
+.icon-square-o-ds::before { content: '\f06a'; }
+.icon-square-o-play::before { content: '\f06b'; }
+.icon-square-o-play-ds::before { content: '\f06c'; }
+.icon-cube::before { content: '\f06d'; }
+.icon-cube-lock::before { content: '\f06e'; }
+.icon-cube-brackets::before { content: '\f070'; }
+.icon-cube-brackets-lock::before { content: '\f071'; }
+.icon-cube-o::before { content: '\f072'; }
+.icon-cube-o-lock::before { content: '\f073'; }
+
+.icon-cube-o-brackets::before { content: '\f074'; }
+.icon-cube-o-brackets-lock::before { content: '\f075'; }
+.icon-cube-grid::before { content: '\f076'; }
+.icon-cube-grid-lock::before { content: '\f077'; }
+.icon-dimens-rectangles::before { content: '\f078'; }
+.icon-dimens-rectangles-lock::before { content: '\f079'; }
+.icon-dimens-rectangle::before { content: '\f07a'; }
+.icon-dimens-rectangle-lock::before { content: '\f07b'; }
+.icon-circle-o-play-lock::before { content: '\f07c'; }
+.icon-type::before { content: '\f07d'; }
+
+.icon-type-lock::before { content: '\f07e'; }

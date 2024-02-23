@@ -1,0 +1,15 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - infrastructure/azure-function/*
+
+stages:
+  - stage: Int  
+    jobs:
+    - template: deploy.yml
+      parameters: 
+        subscription: SharedMicroservices-Development
+        appName: hubshell-proxy-int

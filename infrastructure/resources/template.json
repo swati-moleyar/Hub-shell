@@ -1,0 +1,371 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "type": "string",
+      "metadata": {
+        "description": "int, rc or prod"
+      }
+    },
+    "hubshellStaticHost": {
+      "type": "string"
+    },
+    "hubLegacyAppServiceHost": {
+      "type": "string"
+    },
+    "keyVaultContributorsObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Object Id of the group that will have read/edit access of the key vault. e.g. Azure SharedMicroservices Development Contributors"
+      }
+    },
+    "msiObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "The Object Id of User Assigned Managed Identity so our k8s pods will be able to connect to Key Vault"
+      }
+    },
+    "name": {
+      "type": "string",
+      "defaultValue": "hubshell"
+    },
+    "cdnCustomDomain": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "functionName": "[concat(parameters('name'), '-proxy-', parameters('environment'))]",
+    "location": "[resourceGroup().location]",
+    "storageAccountName": "[concat(parameters('name'), parameters('environment'))]",
+    "hostingPlanName": "[concat('ASP-', parameters('name'), '-', parameters('environment'), '-plan')]",
+    "appInsightsName": "[concat(parameters('name'), '-', parameters('environment'))]",
+    "keyVaultName": "[concat(parameters('name'), '-', parameters('environment'))]",
+    "cdnName": "[concat(parameters('name'), '-cdn-', parameters('environment'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-11-01",
+      "name": "[variables('functionName')]",
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp",
+      "location": "[variables('location')]",
+      "tags": null,
+      "dependsOn": [
+        "[concat('microsoft.insights/components/', variables('appInsightsName'))]",
+        "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "name": "[variables('functionName')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(concat('microsoft.insights/components/', variables('appInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(concat('microsoft.insights/components/', variables('appInsightsName')), '2015-05-01').ConnectionString]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+            },
+            {
+              "name": "HUBSHELL_STATIC_SITE_HOST",
+              "value": "[parameters('hubShellStaticHost')]"
+            },
+            {
+              "name": "HUBLEGACY_APPSERVICE_HOST",
+              "value": "[parameters('hubLegacyAppServiceHost')]"
+            }
+          ],
+          "use32BitWorkerProcess": true
+        },
+        "serverFarmId": "[concat('/subscriptions/', subscription().subscriptionId,'/resourcegroups/', resourceGroup().name, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
+        "clientAffinityEnabled": true
+      }
+    },
+    {
+      "apiVersion": "2018-11-01",
+      "name": "[variables('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[variables('location')]",
+      "kind": "",
+      "tags": null,
+      "dependsOn": [],
+      "properties": {
+        "name": "[variables('hostingPlanName')]",
+        "workerSize": "0",
+        "workerSizeId": "0",
+        "numberOfWorkers": "1"
+      },
+      "sku": {
+        "Tier": "Dynamic",
+        "Name": "Y1"
+      }
+    },
+    {
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('appInsightsName')]",
+      "type": "microsoft.insights/components",
+      "location": "[variables('location')]",
+      "tags": null,
+      "dependsOn": [],
+      "properties": {
+        "ApplicationId": "[variables('appInsightsName')]",
+        "Request_Source": "IbizaWebAppExtensionCreate",
+        "Flow_Type": "Redfield",
+        "Application_Type": "web"
+      }
+    },
+    {
+      "apiVersion": "2020-08-01-preview",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard_RAGRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "azureFilesIdentityBasedAuthentication": {
+          "directoryServiceOptions": "None"
+        },
+        "minimumTlsVersion": "TLS1_0",
+        "allowBlobPublicAccess": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": false,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": ["[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[concat(variables('storageAccountName'), '/default/$web')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('storageAccountName'), 'default')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "defaultEncryptionScope": "$account-encryption-key",
+        "denyEncryptionScopeOverride": false,
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2020-04-15",
+      "name": "[variables('cdnName')]",
+      "dependsOn": ["[resourceId('Microsoft.Web/sites', variables('functionName'))]"],
+      "location": "Global",
+      "sku": {
+        "name": "Standard_Microsoft"
+      },
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/endpoints",
+      "apiVersion": "2020-04-15",
+      "name": "[concat(variables('cdnName'), '/', variables('cdnName'))]",
+      "location": "Global",
+      "dependsOn": ["[resourceId('Microsoft.Cdn/profiles', variables('cdnName'))]"],
+      "properties": {
+        "originHostHeader": "[concat(variables('functionName'), '.azurewebsites.net')]",
+        "contentTypesToCompress": [
+          "application/eot",
+          "application/font",
+          "application/font-sfnt",
+          "application/javascript",
+          "application/json",
+          "application/opentype",
+          "application/otf",
+          "application/pkcs7-mime",
+          "application/truetype",
+          "application/ttf",
+          "application/vnd.ms-fontobject",
+          "application/xhtml+xml",
+          "application/xml",
+          "application/xml+rss",
+          "application/x-font-opentype",
+          "application/x-font-truetype",
+          "application/x-font-ttf",
+          "application/x-httpd-cgi",
+          "application/x-javascript",
+          "application/x-mpegurl",
+          "application/x-opentype",
+          "application/x-otf",
+          "application/x-perl",
+          "application/x-ttf",
+          "font/eot",
+          "font/ttf",
+          "font/otf",
+          "font/opentype",
+          "image/svg+xml",
+          "text/css",
+          "text/csv",
+          "text/html",
+          "text/javascript",
+          "text/js",
+          "text/plain",
+          "text/richtext",
+          "text/tab-separated-values",
+          "text/xml",
+          "text/x-script",
+          "text/x-component",
+          "text/x-java-source"
+        ],
+        "isCompressionEnabled": true,
+        "isHttpAllowed": true,
+        "isHttpsAllowed": true,
+        "queryStringCachingBehavior": "IgnoreQueryString",
+        "optimizationType": "GeneralWebDelivery",
+        "origins": [
+          {
+            "name": "[variables('functionName')]",
+            "properties": {
+              "hostName": "[concat(variables('functionName'), '.azurewebsites.net')]",
+              "originHostHeader": "[concat(variables('functionName'), '.azurewebsites.net')]",
+              "priority": 1,
+              "weight": 1000,
+              "enabled": true
+            }
+          }
+        ],
+        "originGroups": [],
+        "geoFilters": [],
+        "deliveryPolicy": {
+          "rules": [
+            {
+              "name": "HTTPSredirect",
+              "order": 1,
+              "conditions": [
+                {
+                  "name": "RequestScheme",
+                  "parameters": {
+                    "matchValues": ["HTTP"],
+                    "operator": "Equal",
+                    "negateCondition": false,
+                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleRequestSchemeConditionParameters"
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "name": "UrlRedirect",
+                  "parameters": {
+                    "redirectType": "Found",
+                    "destinationProtocol": "Https",
+                    "@odata.type": "#Microsoft.Azure.Cdn.Models.DeliveryRuleUrlRedirectActionParameters"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "urlSigningKeys": []
+      }
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/endpoints/customdomains",
+      "apiVersion": "2020-04-15",
+      "name": "[concat(variables('cdnName'), '/', variables('cdnName'), '/iqmetrix-domain')]",
+      "condition": "[greater(parameters('cdnCustomDomain'), '')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles/endpoints', variables('cdnName'), variables('cdnName'))]",
+        "[resourceId('Microsoft.Cdn/profiles', variables('cdnName'))]"
+      ],
+      "properties": {
+        "hostName": "[parameters('cdnCustomDomain')]"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2016-10-01",
+      "name": "[variables('keyVaultName')]",
+      "location": "westus",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "Standard"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[parameters('keyVaultContributorsObjectId')]",
+            "permissions": {
+              "keys": ["all"],
+              "secrets": ["all"],
+              "certificates": ["all"]
+            }
+          },
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[parameters('msiObjectId')]",
+            "permissions": {
+              "keys": [],
+              "secrets": ["Get", "List"],
+              "certificates": []
+            }
+          }
+        ],
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": false,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": true
+      }
+    }
+  ]
+}

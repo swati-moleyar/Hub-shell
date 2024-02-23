@@ -1,0 +1,95 @@
+trigger:
+  branches:
+    include:
+      - main
+  tags:
+    include:
+      - '*'
+  paths:
+    include:
+      - api/*
+
+steps:
+- powershell: |
+   $date= [Xml.XmlConvert]::ToString([DateTime]::UtcNow, [Xml.XmlDateTimeSerializationMode]::Utc)
+   
+   Write-Host "Setting StartTime variable to '$date'" 
+   Write-Host ("##vso[task.setvariable variable=StartTime]$date")
+   
+   $vcsId = git rev-parse HEAD
+   
+   Write-Host "Setting VcsId variable to '$vcsId"
+   Write-Host ("##vso[task.setvariable variable=VcsId]$vcsId")
+  displayName: 'Set Environmental Variables'
+- powershell: |
+    $tag = (git tag --points-at HEAD)
+   
+    Write-Host "Tag: '$tag'"
+    
+        # From https://github.com/semver/semver/issues/232#issue-48635632
+        $regex = [regex]'^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$'
+        # Look for a semver-compliant tag
+        $semver = @($tag | ForEach-Object { $_.TrimStart('v') } | Where-Object { $regex.IsMatch($_) })
+        if ($semver.Count -eq 1) {
+            Write-Verbose "Found a suitable semver-compliant tag: $semver" -Verbose
+            Write-Host ("##vso[task.setvariable variable=ImageTag]$semver")
+            return $semver
+        } elseif ($semver.Count -gt 1) {
+            Write-Error "Multiple git version tags found: [$semver]."
+            return
+        }
+    
+        Write-Verbose "No suitable git tag found, generating a value" -Verbose
+        $branchPrefix = git rev-parse --abbrev-ref HEAD
+        # Replace seperator chars with a dash
+        $branchPrefix = $branchPrefix -replace '[ /_]', '-'
+        # Strip out non-alphanumerics
+        $branchPrefix = $branchPrefix -replace '[^a-zA-Z0-9-]', ''
+        $branchPrefix = "$branchPrefix".ToLowerInvariant()
+    
+        $commitId = git rev-parse --short HEAD
+    
+        # If the working dir is dirty, append -wip
+        try {
+            git diff HEAD --quiet
+        }
+        catch {
+            $suffix = "-wip"
+        }
+    Try{
+      Write-Host "$(Build.SourceBranchName)-$commitId$suffix"
+      Write-Host "##vso[task.setvariable variable=ImageTag]$(Build.SourceBranchName)-$commitId$suffix"
+    }
+    Catch{
+      Write-Verbose "Error Message: " -Verbose
+      Write-Host $_.Exception.Message
+    }
+  displayName: 'Set Image Tag'
+- powershell: |
+   Write-Host "Setting Build number to '$(ImageTag)'"
+   Write-Host "##vso[build.updatebuildnumber]$(ImageTag)"
+  displayName: 'Update Build Number'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'iQmetrix Container Registry'
+    command: 'login'
+- task: Docker@2
+  env:
+    SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+  displayName: 'Build Docker image'
+  inputs:
+    containerRegistry: 'iQmetrix Container Registry'
+    command: 'build'
+    buildContext: 'api'
+    arguments: --build-arg BUILD_DATE=$(StartTime) --build-arg VCS_ID=$(VcsId) --build-arg VERSION=$(ImageTag) --build-arg PAT=$(System.AccessToken)
+    repository: 'hubshell-bff'
+    tags: '$(ImageTag)'
+    DockerFile: 'api/Hub.Shell.Api/Dockerfile'
+- task: Docker@2
+  condition: or(contains(variables['build.sourceBranch'], 'refs/heads/main'), contains(variables['build.sourceBranch'], 'refs/tags'))
+  displayName: 'Push to iQmetrix Container Registry'
+  inputs:
+    containerRegistry: 'iQmetrix Container Registry'
+    repository: 'hubshell-bff'
+    tags: '$(ImageTag)'
+    command: 'push'

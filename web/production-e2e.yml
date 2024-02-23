@@ -1,0 +1,34 @@
+schedules:
+  - cron: 0 14 * * *
+    branches:
+      include:
+        - main
+
+variables:
+  - group: AzureKeyVault # So that our pipeline can 
+
+stages:
+  - stage: 
+    jobs:
+    - job:
+      steps:
+      
+      - task: Npm@1
+        inputs:
+          command: 'install'
+          workingDir: web
+      - task: Bash@3
+        displayName: Run the thing
+        inputs:
+          targetType: 'inline'
+          workingDirectory: web
+          script: |
+            npm install && npm run test:cypress:prod
+      - task: PublishTestResults@2
+        displayName: 'Publish Results'
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: 'junit'
+          mergeTestResults: false
+          testResultsFiles: '**/*junit.xml'
+          testRunTitle: '$(Build.Repository.Name) Cypress Prod Tests ($(Build.Reason))'

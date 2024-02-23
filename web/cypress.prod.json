@@ -1,0 +1,11 @@
+{
+  "baseUrl": "https://hubdev.iqmetrix.net",
+  "reporter": "mocha-junit-reporter",
+  "reporterOptions": {
+    "mochaFile": "cypress/results/[hash].junit.xml",
+    "toConsole": true,
+    "attachments": true
+  },
+  "chromeWebSecurity": true,
+  "integrationFolder": "cypress/production"
+}
