@@ -1,9 +1,9 @@
 import { Reducer } from "react";
-import { AuthAction, AuthState } from "./types";
+import {ApplicationGroup, AuthAction, AuthState, ParentEntity, Session} from "./types";
 
 const initialState = { isLoggedIn: false, referrer: null };
 
-const reducer: Reducer<AuthState, AuthAction> = (prev, action) => {
+const reducer: (prev: any, action: any) => ({ referrer: string | null; applicationGroups?: ApplicationGroup[]; session?: Session; parentEntity?: ParentEntity; isLoggedIn: boolean; brandingLogo?: string }) = (prev, action) => {
   switch (action.type) {
     case "set_referrer":
       return { ...prev, referrer: action.referrer };

@@ -14,7 +14,7 @@ describe("sidebar", () => {
 
     const appGroups: ApplicationGroup[] = [appGroup, appGroup2];
 
-    render(<Sidebar applicationGroups={appGroups} />);
+    render(<Sidebar applicationGroups={appGroups}  open/>);
 
     expect(screen.getByText("Pokemon Apps")).toBeInTheDocument();
     expect(screen.getByText("Digimon Apps")).toBeInTheDocument();

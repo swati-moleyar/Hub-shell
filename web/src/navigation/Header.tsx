@@ -67,8 +67,8 @@ const Company = styled(Faded)`
 `;
 
 interface Props {
-  menuButtonActive: boolean;
-  onMenuButtonClick: () => void;
+  menuButtonActive?: boolean;
+  onMenuButtonClick?: () => void;
 }
 
 export const Header: React.FC<Props> = ({ menuButtonActive, onMenuButtonClick }) => {

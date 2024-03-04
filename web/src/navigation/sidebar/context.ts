@@ -4,7 +4,7 @@ import { ApplicationGroup, Application } from "../../auth";
 export interface SidebarState {
   initialAppGroup?: ApplicationGroup;
   currentApp?: Application;
-  isCollapsed: boolean;
+  isCollapsed?: boolean;
 }
 
 export interface ISidebarContext {

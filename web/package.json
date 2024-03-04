@@ -1,6 +1,6 @@
 {
   "name": "@iqmetrix/hub-shell",
-  "version": "1.1.0",
+  "version": "1.1.0-alpha.8",
   "files": [
     "/dist"
   ],
@@ -10,10 +10,10 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.2",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.13",
-    "@iqmetrix/antd": "^6.4.1",
-    "@iqmetrix/detect-inactivity": "^2.0.3",
-    "@iqmetrix/host-interop": "^1.1.0",
-    "@iqmetrix/style-tokens": "^3.20.1",
+    "@iqmetrix/antd": "6.6.1-alpha.6",
+    "@iqmetrix/detect-inactivity": "2.0.3-alpha.2",
+    "@iqmetrix/host-interop": "1.1.1-alpha.1",
+    "@iqmetrix/style-tokens": "3.21.0-alpha.2",
     "@sentry/react": "^6.0.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -69,8 +69,8 @@
     ]
   },
   "devDependencies": {
-    "@iqmetrix/cypress": "^2.5.3",
-    "@iqmetrix/hub-dev-server": "^2.10.0",
+    "@iqmetrix/cypress": "2.5.3-alpha.1",
+    "@iqmetrix/hub-dev-server": "2.11.4-alpha.3",
     "@testing-library/cypress": "^7.0.3",
     "cypress": "^6.3.0",
     "http-server": "^0.12.3",
@@ -78,5 +78,8 @@
     "mocha": "^8.2.1",
     "mocha-junit-reporter": "^2.0.0",
     "start-server-and-test": "^1.11.7"
+  },
+  "resolutions": {
+    "workbox-webpack-plugin": "6.4.1"
   }
 }

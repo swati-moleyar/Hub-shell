@@ -14,9 +14,9 @@ interface Session {
 }
 
 interface SessionResponse extends Session {
-  brandingLogo: string;
-  parentEntityRole: string;
-  applicationGroups: ApplicationGroup[];
+  brandingLogo?: string;
+  parentEntityRole?: string;
+  applicationGroups?: ApplicationGroup[];
 }
 
 interface ApplicationGroup {
@@ -35,8 +35,8 @@ interface Application {
 }
 
 interface AuthState {
-  referrer: string | null;
-  isLoggedIn: boolean;
+  referrer?: string | null;
+  isLoggedIn?: boolean;
   session?: Session;
   brandingLogo?: string;
   applicationGroups?: ApplicationGroup[];
