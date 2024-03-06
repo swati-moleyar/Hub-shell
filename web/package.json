@@ -81,6 +81,13 @@
   },
   "resolutions": {
     "workbox-webpack-plugin": "6.4.1",
-    "node-fetch": "2.6.7"
+    "node-fetch": "2.6.7",
+    "loader-utils": "2.0.3",
+    "shell-quote": "1.7.3",
+    "qs": "6.5.3",
+    "lodash": "4.17.21",
+    "immer": "9.0.6",
+    "follow-redirects": "1.15.4",
+    "ejs": "3.1.7"
   }
 }
